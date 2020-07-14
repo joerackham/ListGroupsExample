@@ -2,35 +2,37 @@
     x:Class="ListGroupsExample.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:ListGroupsExample"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
     <Page.Resources>
-        <CollectionViewSource x:Name="ContactsCVS" IsSourceGrouped="True"/>
+        <CollectionViewSource x:Name="ContactsCVS" IsSourceGrouped="True" />
     </Page.Resources>
 
     <ListView
-        x:Name="ContactsListView"
-        ItemsSource="{Binding Source={StaticResource ContactsCVS}, Mode=OneWay}">
+        ItemsSource="{Binding Source={StaticResource ContactsCVS}}"
+        ChoosingGroupHeaderContainer="OnChoosingGroupHeaderContainer">
         <ListView.ItemsPanel>
             <ItemsPanelTemplate>
-                <ItemsStackPanel AreStickyGroupHeadersEnabled="False"/>
+                <ItemsStackPanel AreStickyGroupHeadersEnabled="False" />
             </ItemsPanelTemplate>
         </ListView.ItemsPanel>
         <ListView.GroupStyle>
             <GroupStyle HidesIfEmpty="True">
                 <GroupStyle.HeaderTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding Key}"/>
+                        <TextBlock Text="{Binding Key}" />
                     </DataTemplate>
                 </GroupStyle.HeaderTemplate>
+                <GroupStyle.HeaderContainerStyle>
+                    <Style TargetType="ListViewHeaderItem">
+                        <Setter Property="IsTabStop" Value="False" />
+                    </Style>
+                </GroupStyle.HeaderContainerStyle>
             </GroupStyle>
         </ListView.GroupStyle>
         <ListView.ItemTemplate>
             <DataTemplate>
-                <TextBlock Text="{Binding FirstName}" Margin="0,5,0,5"/>
+                <TextBlock Text="{Binding FirstName}" Margin="0,5,0,5" />
             </DataTemplate>
         </ListView.ItemTemplate>
     </ListView>

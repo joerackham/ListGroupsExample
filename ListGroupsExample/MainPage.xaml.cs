@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using Windows.UI.Xaml.Automation;
 using Windows.UI.Xaml.Controls;
@@ -11,49 +10,37 @@ namespace ListGroupsExample
         public MainPage()
         {
             InitializeComponent();
-            ContactsListView.ChoosingGroupHeaderContainer += OnChoosingGroupHeaderContainer;
-            this.groupedList = GetContactsGrouped();
-            ContactsCVS.Source = this.groupedList;
-        }
 
-        private ObservableCollection<GroupInfoList> groupedList;
+            ContactsCVS.Source = GetContactsGrouped();
+        }
 
         private void OnChoosingGroupHeaderContainer(ListViewBase sender, ChoosingGroupHeaderContainerEventArgs args)
         {
-            var header = new ListViewHeaderItem();
-            var group = (GroupInfoList)args.Group;
+            var company = ((IGrouping<string, Contact>)args.Group).Key;
 
-            AutomationProperties.SetName(header, group.Key);
-            AutomationProperties.SetLevel(header, 1);
-            AutomationProperties.SetPositionInSet(header, args.GroupIndex + 1);
-            AutomationProperties.SetSizeOfSet(header, groupedList.Count);
-
-            args.GroupHeaderContainer = header;
-        }
-
-        public static ObservableCollection<GroupInfoList> GetContactsGrouped()
-        {
-            var list = new ObservableCollection<Contact>();
-            list.Add(new Contact("Joe", "Rackham", "Microsoft"));
-            list.Add(new Contact("Tiger", "Cross", "Microsoft"));
-            list.Add(new Contact("Julie", "Emile", "Google"));
-            list.Add(new Contact("Jack", "Morrison", "Google"));
-
-            var query = from item in list
-
-            group item by item.Company into g
-            orderby g.Key
-            select new GroupInfoList(g) { Key = g.Key };
-
-            return new ObservableCollection<GroupInfoList>(query);
-        }
-
-        public class GroupInfoList : List<object>
-        {
-            public GroupInfoList(IEnumerable<object> items) : base(items)
+            if (args.GroupHeaderContainer is null)
             {
+                args.GroupHeaderContainer = new ListViewHeaderItem();
             }
-            public string Key { get; set; }
+
+            AutomationProperties.SetName(args.GroupHeaderContainer, company);
+        }
+
+        public static IReadOnlyCollection<IGrouping<string, Contact>> GetContactsGrouped()
+        {
+            var contacts = new[]
+            {
+                new Contact("Joe", "Rackham", "Microsoft"),
+                new Contact("John", "Smith", "Amazon"),
+                new Contact("Tiger", "Cross", "Microsoft"),
+                new Contact("Julie", "Emile", "Google"),
+                new Contact("Jack", "Morrison", "Google")
+            };
+
+            return contacts
+                .GroupBy(c => c.Company)
+                .OrderBy(g => g.Key)
+                .ToList().AsReadOnly();
         }
 
         public class Contact
@@ -61,6 +48,7 @@ namespace ListGroupsExample
             public string FirstName { get; private set; }
             public string LastName { get; private set; }
             public string Company { get; private set; }
+
             public string Name => FirstName + " " + LastName;
 
             public Contact(string firstName, string lastName, string company)
