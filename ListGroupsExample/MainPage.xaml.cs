@@ -12,14 +12,23 @@ namespace ListGroupsExample
         {
             InitializeComponent();
             ContactsListView.ChoosingGroupHeaderContainer += OnChoosingGroupHeaderContainer;
-            ContactsCVS.Source = GetContactsGrouped();
+            this.groupedList = GetContactsGrouped();
+            ContactsCVS.Source = this.groupedList;
         }
+
+        private ObservableCollection<GroupInfoList> groupedList;
+
         private void OnChoosingGroupHeaderContainer(ListViewBase sender, ChoosingGroupHeaderContainerEventArgs args)
         {
-            if (args.GroupHeaderContainer != null)
-            {
-                AutomationProperties.SetName(args.GroupHeaderContainer, "Foo bar");
-            }
+            var header = new ListViewHeaderItem();
+            var group = (GroupInfoList)args.Group;
+
+            AutomationProperties.SetName(header, group.Key);
+            AutomationProperties.SetLevel(header, 1);
+            AutomationProperties.SetPositionInSet(header, args.GroupIndex + 1);
+            AutomationProperties.SetSizeOfSet(header, groupedList.Count);
+
+            args.GroupHeaderContainer = header;
         }
 
         public static ObservableCollection<GroupInfoList> GetContactsGrouped()
@@ -44,7 +53,7 @@ namespace ListGroupsExample
             public GroupInfoList(IEnumerable<object> items) : base(items)
             {
             }
-            public object Key { get; set; }
+            public string Key { get; set; }
         }
 
         public class Contact
